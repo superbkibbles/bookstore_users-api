@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/superbkibbles/bookstore_oauth-go/oauth"
 	"github.com/superbkibbles/bookstore_users-api/domain/users"
 	"github.com/superbkibbles/bookstore_users-api/services"
 	"github.com/superbkibbles/bookstore_users-api/utils/errors"
@@ -22,6 +23,11 @@ func getUserId(userIdParam string) (int64, *errors.RestErr) {
 }
 
 func Get(c *gin.Context) {
+	if err := oauth.AuthentuicateRequest(c.Request); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+
 	userID, userErr := getUserId(c.Param("user_id"))
 	if userErr != nil {
 		c.JSON(userErr.Status, userErr)
@@ -33,8 +39,11 @@ func Get(c *gin.Context) {
 		c.JSON(getErr.Status, getErr)
 		return
 	}
-
-	c.JSON(http.StatusFound, user.Marshal(c.GetHeader("X-Public") == "true"))
+	if oauth.GetCallerID(c.Request) == user.Id {
+		c.JSON(http.StatusFound, user.Marshal(false))
+		return
+	}
+	c.JSON(http.StatusFound, user.Marshal(oauth.IsPublic(c.Request)))
 }
 
 func Create(c *gin.Context) {
