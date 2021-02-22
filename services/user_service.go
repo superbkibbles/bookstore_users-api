@@ -4,7 +4,7 @@ import (
 	"github.com/superbkibbles/bookstore_users-api/domain/users"
 	"github.com/superbkibbles/bookstore_users-api/utils/crypto_utils"
 	"github.com/superbkibbles/bookstore_users-api/utils/date_utils"
-	"github.com/superbkibbles/bookstore_users-api/utils/errors"
+	"github.com/superbkibbles/bookstore_utils-go/rest_errors"
 )
 
 var (
@@ -14,15 +14,15 @@ var (
 type usersService struct{}
 
 type usersServiceInterface interface {
-	CreateUser(users.User) (*users.User, *errors.RestErr)
-	GetUser(int64) (*users.User, *errors.RestErr)
-	UpdateUser(bool, users.User) (*users.User, *errors.RestErr)
-	DeleteUser(int64) *errors.RestErr
-	SearchUser(string) (users.Users, *errors.RestErr)
-	LoginUser(users.LoginRequest) (*users.User, *errors.RestErr)
+	CreateUser(users.User) (*users.User, *rest_errors.RestErr)
+	GetUser(int64) (*users.User, *rest_errors.RestErr)
+	UpdateUser(bool, users.User) (*users.User, *rest_errors.RestErr)
+	DeleteUser(int64) *rest_errors.RestErr
+	SearchUser(string) (users.Users, *rest_errors.RestErr)
+	LoginUser(users.LoginRequest) (*users.User, *rest_errors.RestErr)
 }
 
-func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
+func (s *usersService) CreateUser(user users.User) (*users.User, *rest_errors.RestErr) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RestErr
 	return &user, nil
 }
 
-func (s *usersService) GetUser(userID int64) (*users.User, *errors.RestErr) {
+func (s *usersService) GetUser(userID int64) (*users.User, *rest_errors.RestErr) {
 	user := &users.User{Id: userID}
 
 	if err := user.Get(); err != nil {
@@ -45,7 +45,7 @@ func (s *usersService) GetUser(userID int64) (*users.User, *errors.RestErr) {
 	return user, nil
 }
 
-func (s *usersService) UpdateUser(partial bool, user users.User) (*users.User, *errors.RestErr) {
+func (s *usersService) UpdateUser(partial bool, user users.User) (*users.User, *rest_errors.RestErr) {
 	current, err := s.GetUser(user.Id)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (s *usersService) UpdateUser(partial bool, user users.User) (*users.User, *
 	return current, nil
 }
 
-func (s *usersService) DeleteUser(userID int64) *errors.RestErr {
+func (s *usersService) DeleteUser(userID int64) *rest_errors.RestErr {
 	user := &users.User{Id: userID}
 	if err := user.Delete(); err != nil {
 		return err
@@ -83,12 +83,12 @@ func (s *usersService) DeleteUser(userID int64) *errors.RestErr {
 	return nil
 }
 
-func (s *usersService) SearchUser(status string) (users.Users, *errors.RestErr) {
+func (s *usersService) SearchUser(status string) (users.Users, *rest_errors.RestErr) {
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 }
 
-func (s *usersService) LoginUser(request users.LoginRequest) (*users.User, *errors.RestErr) {
+func (s *usersService) LoginUser(request users.LoginRequest) (*users.User, *rest_errors.RestErr) {
 	dao := &users.User{
 		Email:    request.Email,
 		Password: crypto_utils.GetMd5(request.Password),
