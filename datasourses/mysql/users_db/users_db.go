@@ -3,10 +3,10 @@ package users_db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
+	"github.com/superbkibbles/bookstore_utils-go/logger"
 )
 
 const (
@@ -29,7 +29,7 @@ func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
 		username, password, host, schema,
 	)
-	// dataSounrceName := "root:A3201888118a@/users_db?charset=utf8"
+	// dataSourceName := "root:A3201888118a@/users_db?charset=utf8"
 	var err error
 	Client, err = sql.Open("mysql", dataSourceName)
 	if err != nil {
@@ -40,5 +40,5 @@ func init() {
 		panic(err)
 	}
 
-	log.Println("database successfully configured")
+	mysql.SetLogger(logger.Getlogger())
 }

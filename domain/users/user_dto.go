@@ -22,7 +22,7 @@ type User struct {
 
 type Users []User
 
-func (user *User) Validate() *rest_errors.RestErr {
+func (user *User) Validate() rest_errors.RestErr {
 	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
 	if user.Email == "" {
 		return rest_errors.NewBadRequestErr("invalid Email address")
